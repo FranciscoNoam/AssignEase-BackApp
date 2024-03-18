@@ -23,52 +23,25 @@ app.use(cors(corsOptions));
 const connectDB = require("./src/database/connection");
 connectDB();
 
+// +++++++++++++++++++++++ Importation des routes ++++++++++++++++++++++++++++++++
+
+app.use("/", require("./src/routes/Teacher.route"));
+app.use("/", require("./src/routes/Student.route"));
+
 //++++++++++++++++++++++++ Importation Controllers  +++++++++++++++++++++++++++++++++++++
 
 const cAuth = require('./src/controllers/Authentification.controller');
 //++++++++++++++++++++++++ Importation Models +++++++++++++++++++++++++++++++++++++++++
-
-const Userdb = require('./src/models/User.model');
-
-
-
-//++++++++++++++++++++++++ Jwt verification  ++++++++++++++++++++++++++++++++++++++++++
-
-const verifyJWT = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Non autorisé' });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const decoded = cAuth.verifyToken(token);
-    if (!decoded) {
-        return res.status(403).json({ error: 'Interdit' });
-    }
-    req.user = decoded;
-    next();
-};
 
 
 //++++++++++++++++++++++++ API ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 app.get('/api/init-users', cAuth.createUserInit);
 app.post("/login", cAuth.authUser);
-app.get('/api/users', verifyJWT, async (req, res) => {
-    try {
-        const data = await Userdb.find();
-            res.json(data);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server ErrorErreur interne du serveur' });
-    }
-});
-
-
-
 app.get('/',  (req, res) => {
     res.send('Backend API connecté');
 });
+
 //++++++++++++++++++++++++ END API ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 

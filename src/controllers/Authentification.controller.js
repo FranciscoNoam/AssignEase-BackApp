@@ -25,6 +25,7 @@ exports.verifyToken = (token) => {
     }
 };
 
+
 exports.authUser = async (req, res) => {
 
     try {
@@ -32,19 +33,46 @@ exports.authUser = async (req, res) => {
 
         const user = await Userdb.findOne({ username: username }).select('name username password');
         if (!user) {
-            return res.status(404).json({ error: 'Utilisateur introuvable' });
+            return res.status(404).json({ error: 'Email ou mot de passe est incorrect' });
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
-            return res.status(401).json({ error: 'Mot de passe incorrect' });
+            return res.status(401).json({ error: 'Email ou mot de passe est incorrect' });
         }
 
         const token = this.generateToken(user);
 
         res.json({ token });
     } catch (error) {
+        res.send({ ststus: 400, mesage: error.message });
+    }
+
+};
+
+
+
+exports.createUserInit = async (req, res) => {
+
+    try {
+        // password: "develop"
+        var tab = [
+            { name: "ANTOENJARA Noam Francisco", username: "antoenjara1998@gmail.com", password: "$2b$10$m2aXw5FCTMKvMxt68u9hv.sXzdngzJapKIIHjnKJNkGDQiZrIZoZu" },
+            { name: "TOMBOANJARA Claudio", username: "claudmja2.0@gmail.com", password: "$2b$10$m2aXw5FCTMKvMxt68u9hv.sXzdngzJapKIIHjnKJNkGDQiZrIZoZu" },
+        ];
+        const listUserInit = await Userdb.find();
+
+        if (listUserInit.length > 0) {
+
+            res.send({ status: 400, message: "Utilisateur déjà initialisé" });
+
+        } else {
+            const Insert = await Userdb.insertMany(tab);
+            res.send({ status: 200, message: "Utilisateur initialisé avec succès" });
+        }
+    } catch (error) {
+        console.log("createUserInit error: " + error.message);
         res.send({ ststus: 400, mesage: error.message });
     }
 

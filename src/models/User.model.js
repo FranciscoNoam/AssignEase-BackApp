@@ -17,6 +17,6 @@ const userSchema = new mongoose.Schema({
     token_auth: { type: String }
 });
 
-const Userdb = mongoose.model('c_user', userSchema);
+const Userdb = mongoose.model('users', userSchema);
 
 module.exports = Userdb;
